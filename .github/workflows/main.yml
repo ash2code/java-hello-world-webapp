@@ -2,7 +2,11 @@ name: Java Hello World Web App
 
 on:
   push:
-    branches: [master]
+    branches: [main]
+
+env: 
+  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
 jobs:
   setup-java:
@@ -64,3 +68,60 @@ jobs:
 
       - name: Test Code
         run: mvn test
+
+  docker-build: 
+    name: Build the Docker Image 
+    needs: build-test-code
+    runs-on: ubuntu-latest
+    defaults:
+      run: 
+        shell: bash
+    
+    steps: 
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: List Files
+        run: ls -al
+
+      - name: Copy the WAR file to the current directory 
+        run: cp /home/runner/.m2/repository/org/cloudifysource/examples/java-hello-world-webapp/1.0-SNAPSHOT/java-hello-world-webapp-1.0-SNAPSHOT.war .
+
+      - name: Setup Docker 
+        uses: docker/setup-buildx-action@v1
+      
+      - name: Login to Docker Hub 
+        uses: docker/login-action@v1 
+        with: 
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build the Docker Image 
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/java-hello-world-webapp:latest .
+
+      - name: Push the Docker Image to Docker Hub
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/java-hello-world-webapp:latest
+
+  docker-run: 
+    name: Run the Docker Image 
+    needs: docker-build 
+    runs-on: ubuntu-latest
+    defaults:
+      run: 
+        shell: bash 
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2 
+
+      - name: List Files
+        run: ls -al 
+
+      - name: Run Docker Image in detach mode  
+        run: docker container run -dt -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/java-hello-world-webapp:latest
+
+      - name: Check Images List 
+        run: docker images -a 
+
+      - name: Check Running Containers 
+        run: docker ps -a
