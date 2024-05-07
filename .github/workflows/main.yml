@@ -2,7 +2,7 @@ name: Java Hello World Web App
 
 on:
   push:
-    branches: [main]
+    branches: [master]
 
 jobs:
   setup-java:
