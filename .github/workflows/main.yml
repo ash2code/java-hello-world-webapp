@@ -1,0 +1,66 @@
+name: Java Hello World Web App
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  setup-java:
+    name: Setup Java
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Setup Java
+        uses: actions/setup-java@v2
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Print Java Version
+        run: java -version
+
+  install-maven:
+    name: Install Maven
+    needs: setup-java
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Update Packages
+        run: sudo apt-get update -y
+
+      - name: Install Maven
+        run: sudo apt install maven -y
+
+      - name: Verify Maven Installation
+        run: mvn -version
+
+  build-test-code:
+    name: Build and Test Code
+    needs: install-maven
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: List Files
+        run: ls -lrt
+
+      - name: Build Code
+        run: mvn clean install
+
+      - name: Test Code
+        run: mvn test
