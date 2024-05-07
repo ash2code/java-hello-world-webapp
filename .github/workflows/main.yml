@@ -82,7 +82,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: List Files
-        run: ls -al
+        run: ls /home/runner/work/java-hello-world-webapp/java-hello-world-webapp/target/
 
       - name: Copy the WAR file to the current directory 
         run: cp /home/runner/.m2/repository/org/cloudifysource/examples/java-hello-world-webapp/1.0-SNAPSHOT/java-hello-world-webapp-1.0-SNAPSHOT.war .
