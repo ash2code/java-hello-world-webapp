@@ -68,7 +68,10 @@ jobs:
 
       - name: Test Code
         run: mvn test
-
+        
+      - name: List Files
+        run: ls /home/runner/.m2/repository/org/cloudifysource/examples/java-hello-world-webapp/1.0-SNAPSHOT/
+ 
   docker-build: 
     name: Build the Docker Image 
     needs: build-test-code
